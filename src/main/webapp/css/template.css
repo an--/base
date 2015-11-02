@@ -1,0 +1,14 @@
+html, body {
+    font-family: sans-serif;
+    background-color: #F7F7F7;
+    height: 100%;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+body.nylas-gradient-bg {
+    background-image: -webkit-radial-gradient(center 33%, circle cover, rgba(236,236,236,1) 40%, rgba(236,236,236,0) 100%), linear-gradient(to right, rgba(213,224,0,0.47) 0%,rgba(88,182,63,0.47) 50%,rgba(12,162,163,0.47) 100%);
+    background-size: cover;
+    color: white;
+}
