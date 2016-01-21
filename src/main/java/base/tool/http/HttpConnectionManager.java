@@ -25,7 +25,7 @@ public class HttpConnectionManager {
 	/**
 	 * 最大连接数
 	 */
-	public final static int MAX_TOTAL_CONNECTIONS = 400;
+	public final static int MAX_TOTAL_CONNECTIONS = 20;
 	/**
 	 * 路由最大连接数
 	 */

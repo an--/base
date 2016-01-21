@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+ <!-- scan="true" scanPeriod="2 seconds" -->
+<!-- TRACE < DEBUG < INFO < WARN < ERROR < FATAL -->
+<configuration debug="false">
+
+    <contextName>service</contextName>
+    <property name="log.level" value="TRACE" />
+    <property name="log.level.j0" value="DEBUG" />
+    <property name="log.level.sql" value="ERROR" />
+<!--     <property name="log.dir" value="/data/bookfm/doc/maple/log" /> -->
+    <!--<property name="log.pattern" value="%-6d{HH:mm:ss.SSS} %-6level [%thread][%logger{1}.%logger{0} %line] - %msg%n" />-->
+    <property name="log.pattern" value="%-6d{HH:mm:ss.SSS} %-5level [%logger %line] - %msg%n" />
+    
+    <!-- 控制台 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder charset="UTF-8">
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <!--&lt;!&ndash; 出错日志策略 &ndash;&gt;
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log.dir}/error.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.dir}/backup/%d{yyyy/MM/dd}/error-%i.log.gz</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder charset="UTF-8">
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <append>true</append>
+    </appender>
+
+    &lt;!&ndash; 访问日志策略 &ndash;&gt;
+    <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log.dir}/info.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.dir}/backup/%d{yyyy/MM/dd}/info-%i.log.gz</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder charset="UTF-8">
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <append>true</append>
+    </appender>
+
+    &lt;!&ndash; 调试日志策略 &ndash;&gt;
+    <appender name="DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log.dir}/debug.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.dir}/backup/%d{yyyy/MM/dd}/debug-%i.log.gz</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder charset="UTF-8">
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <append>true</append>
+    </appender>
+
+    &lt;!&ndash; 所有日志策略 &ndash;&gt;
+    <appender name="ALL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log.dir}/all.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log.dir}/backup/%d{yyyy/MM/dd}/all-%i.log.gz</fileNamePattern>
+            <maxHistory>7</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder charset="UTF-8">
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <append>true</append>
+    </appender>-->
+    
+
+    <logger name="org.apache.velocity" level="ERROR" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+    <logger name="org.springframework.data" level="ERROR" additivity="true" />
+    <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate" level="ERROR" additivity="true" />
+    <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="ERROR" additivity="true" />
+
+    <root level="${log.level}">
+        <appender-ref ref="STDOUT" />
+<!--         <appender-ref ref="DEBUG_FILE" /> -->
+<!--         <appender-ref ref="INFO_FILE" /> -->
+<!--         <appender-ref ref="ERROR_FILE" /> -->
+<!--         <appender-ref ref="ALL_FILE" /> -->
+    </root>
+</configuration>
+
+
+
