@@ -1,4 +1,4 @@
-package orther;
+package codec;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;

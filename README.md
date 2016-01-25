@@ -42,9 +42,24 @@
 
 #### util
 
-* file copy 
+* file copy
+ 
 
 * excel read/write
+
+
+* http httpClient
+
+    - http
+    - https
+    - keyStore
+
+
+* codec
+
+    - AES
+    - RSA
+    - MessageDigest
 
 
 ### css

@@ -2,8 +2,15 @@ package base.tool.http;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,18 +22,74 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HttpPostTest {
+    
+    private static Logger logger = LoggerFactory.getLogger(HttpPostTest.class);
 
     @Test
     public void test() {
         
-        
-        Map<String, String> headMap = new HashMap<String,String>();
-        headMap.put("Content-Type", ContentType.APPLICATION_JSON.getMimeType());
-        RequestUtil.doPostStringBody("http://127.0.0.1:8888/console/body", "{test:{a:1,b:2}}", headMap);
+        keyStoreTest();
 
         fail("Not yet implemented");
+    }
+    
+    public static void keyStoreTest() {
+        
+        String pwd = "123456";
+        
+        String keyStorePath = "/Users/an/workspace/git/base/src/main/resource/keystore";
+//        String classPath = Thread.currentThread().getContextClassLoader().getResource("/").toString();
+        
+        File keyStoreDir = new File(keyStorePath);
+        File keyStoreFile = keyStoreDir.listFiles()[0];
+        FileInputStream keyStoreFileIn;
+        try {
+            keyStoreFileIn = new FileInputStream(keyStoreFile);
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keyStore.load(keyStoreFileIn, pwd.toCharArray());
+            
+            String url = "https://zhuhai.szrrjc.com/services/rongzhijia";
+            
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("id", "1");
+            HttpPost httpPost = HttpUtil.createHttpPostFormUrlecoded(url, null, paramMap);
+            String response = HttpUtil.doPost(httpPost);
+            logger.info("keyStoreTest > uri = {} , response = {}", response);
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (KeyStoreException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (CertificateException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        
+    }
+    
+    public static void clientTimeSettingTest() {
+        String hostStr = "http://www.google.com/";
+        String url = hostStr + "/accountManager/ajax/doLogin";
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("username", "mager");
+        paramMap.put("password", "mager");
+        
+        HttpPost httpPost = HttpUtil.createHttpPostFormUrlecoded(url, null, paramMap);
+        String responseBodyStr = HttpUtil.doPost(httpPost);
+        logger.info("clientTimeSettingTest > response = {} ", responseBodyStr);
+        
     }
     
     

@@ -1,17 +1,33 @@
-package orther;
+package codec;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.TreeMap;
 
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import base.tool.codec.CodecException;
 import base.tool.codec.aes.AES;
+import base.tool.codec.aes.Codec1;
 
 public class AESTest {
     
     private static Logger logger = LoggerFactory.getLogger(AESTest.class); 
+    
+    @Test
+    public void decodeTest() {
+        String key = "97F1564FAFBFDCB3";
+        String enStr = "3tgyV0ulLEfcuQZA6BUnYmZaUvc6q1oXUl7BcoipYriTjj51dVBgu1PWcgqGG20ttP1fO0NVf4Sjk4QxjJjUsq3JIK%2Fan7GmR%2B6UK6VCKkxT4QBGhDbGZq3TsJWhCYI57zEijyyd7cpkBvOQxqc761w27tbYvWzB89EClS%2Bg4jqRd4LyrOkkBS%2BpCmf8%2Bu8sceTPwBkB7zb2Mo2O1cp6PQ%3D%3D";
+        try {
+            logger.info(Codec1.base64StrDecode(key, URLDecoder.decode(enStr, "utf-8")));
+        } catch (CodecException | UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+    }
 
     public static void main(String[] args) throws UnsupportedEncodingException {
         String secretKey = "A3B4C5D6E6F70901";
