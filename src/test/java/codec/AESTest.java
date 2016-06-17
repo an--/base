@@ -18,10 +18,11 @@ public class AESTest {
     
     @Test
     public void decodeTest() {
-        String key = "97F1564FAFBFDCB3";
-        String enStr = "3tgyV0ulLEfcuQZA6BUnYmZaUvc6q1oXUl7BcoipYriTjj51dVBgu1PWcgqGG20ttP1fO0NVf4Sjk4QxjJjUsq3JIK%2Fan7GmR%2B6UK6VCKkxT4QBGhDbGZq3TsJWhCYI57zEijyyd7cpkBvOQxqc761w27tbYvWzB89EClS%2Bg4jqRd4LyrOkkBS%2BpCmf8%2Bu8sceTPwBkB7zb2Mo2O1cp6PQ%3D%3D";
+        String key = "";
+        String enStr = "";
         try {
-            logger.info(Codec1.base64StrDecode(key, URLDecoder.decode(enStr, "utf-8")));
+            logger.info(URLDecoder.decode(enStr, "utf-8"));
+            logger.info(Codec1.base64StrDecode(key, ""));
         } catch (CodecException | UnsupportedEncodingException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
