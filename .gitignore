@@ -1,0 +1,29 @@
+
+
+## mac os
+.DS_Store
+
+## eclipse
+.project
+.classpath
+.metadata
+.settings/
+
+
+## intellj IDEA
+.idea
+*.iml
+
+## java
+*.class
+*.war
+
+## svn
+.svn
+
+## maven
+target/
+
+## gradle
+.gradle
+build/
