@@ -1,6 +1,16 @@
 package base.tool.file.excel;
 
-import org.apache.poi.ss.usermodel.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -10,22 +20,21 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * workbook生成工具
- * Created by an on 15/4/2.
+ * workbook生成工具 Created by an on 15/4/2.
  */
 public class WorkbookWriter {
 
-    public static final short defaultMainTitleRowHeight = 800;
+    public static final short defaultMainTitleRowHeight = 700;
+    public static final short defaultMaintitleFontHeight = 280;
 
-    public static final short defaultTitleRowHeight = 700;
+    public static final short defaultTitleRowHeight = 500;
+    public static final short defaultTitleFontHeight = 220;
 
-    public static final short defaultDataRowHeight = 600;
 
-    public static final short defaultMaintitleFontHeight = 400;
-    public static final short defaultTitleFontHeight = 320;
-    public static final short defaultDataFontHeight = 280;
+    public static final short defaultDataRowHeight = 300;
+    public static final short defaultDataFontHeight = 180;
 
-    public static final short defauletColumnWeight = 5000;
+    public static final short defauletColumnWeight = 3800;
 
     private Workbook workbook;
 
@@ -35,11 +44,20 @@ public class WorkbookWriter {
 
     private String mainTitle;
 
+    /**
+     * 在表格中显示的列名称
+     */
     private String[] columnTitles;
 
+    /**
+     * 传入数据 map 对象的 key 名称，与 columnTitles 顺序对应
+     */
     private String[] fieldNames;
 
-    private List<Map<String , Object>> records;
+    /**
+     * 数据，每个 map 对应一行数据，key 值对应 fieldNames 中的值
+     */
+    private List<Map<String, Object>> recordMaps;
 
     private CellStyle mainTitleCellStyle;
 
@@ -62,47 +80,74 @@ public class WorkbookWriter {
     }
 
     public WorkbookWriter(XSSFWorkbook workbook) {
-        if( null == workbook){
-            throw new NullPointerException( "workbook cant be null " );
+        if (null == workbook) {
+            throw new NullPointerException("workbook cant be null ");
         }
         this.sheetIndex = (byte) this.workbook.getNumberOfSheets();
         initStyle();
     }
 
     public WorkbookWriter(XSSFWorkbook workbook, byte sheetIndex) {
-        if( null == workbook){
-            throw new NullPointerException( "workbook cant be null " );
+        if (null == workbook) {
+            throw new NullPointerException("workbook cant be null ");
         }
         this.sheetIndex = sheetIndex;
         initStyle();
     }
 
+
+    /**
+     * 通过 表头，数据 map 字段名称，数据 map 列表构建一个 WorkbookWriter 对象
+     *
+     * @param columnTitles
+     * @param fieldNames
+     * @param records
+     */
+    public WorkbookWriter(String[] columnTitles, String[] fieldNames,
+            List<Map<String, Object>> records) {
+        this();
+        this.columnTitles = columnTitles;
+        this.fieldNames = fieldNames;
+        this.recordMaps = records;
+    }
+
+
+    /**
+     * 将 workbook 写入输出流
+     *
+     * @param out 输出流
+     * @throws IOException
+     */
+    public void write(OutputStream out) throws IOException {
+        buildWorkbook().write(out);
+    }
+
+
     /**
      * 在sheet中填充数据
-     * @param sheet
      */
-    public void fillSheet( Sheet sheet , int startRowI ){
-        int recordSize = records.size();
+    public void fillSheet(Sheet sheet, int startRowI) {
+        int recordSize = recordMaps.size();
         int columnSize = fieldNames.length;
-        for( int recordI = 0 ; recordI < recordSize ; recordI++ ){
-            Map<String , Object> record = records.get(recordI);
-            Row row = sheet.createRow(recordI+startRowI);
-            if(null != dataRowHeight){
+        for (int recordI = 0; recordI < recordSize; recordI++) {
+            Map<String, Object> record = recordMaps.get(recordI);
+            Row row = sheet.createRow(recordI + startRowI);
+            if (null != dataRowHeight) {
                 row.setHeight(dataRowHeight);
             }
-            for( int columni = 0 ; columni < columnSize ; columni++ ){
-                if( null != this.columnweight){
-                    sheet.setColumnWidth( columni , this.columnweight );
+            for (int columni = 0; columni < columnSize; columni++) {
+                if (null != this.columnweight) {
+                    sheet.setColumnWidth(columni, this.columnweight);
                 }
                 Cell cell = row.createCell(columni);
                 Object cellValue = record.get(fieldNames[columni]);
-                if( null == cellValue ){
-                    cell.setCellType(cell.CELL_TYPE_BLANK);
-                }else{
-                    cell.setCellType( Cell.CELL_TYPE_STRING );
-                    cell.setCellValue( cellValue.toString() );
+                if (null == cellValue) {
+                    cell.setCellType(CellType.BLANK);
+                } else {
+                    cell.setCellType(CellType.STRING);
+                    cell.setCellValue(cellValue.toString());
                 }
-                if( null != dataCellStyle ){
+                if (null != dataCellStyle) {
                     cell.setCellStyle(dataCellStyle);
                 }
             }
@@ -111,112 +156,114 @@ public class WorkbookWriter {
 
     /**
      * 生成 workbook
-     * @return
      */
-    public Workbook buildWorkbook(){
+    public Workbook buildWorkbook() {
         Sheet sheet;
         int numberOfSheets = workbook.getNumberOfSheets();
-        if( numberOfSheets <= this.sheetIndex ) {
+        if (numberOfSheets <= this.sheetIndex) {
             do {
                 sheet = workbook.createSheet();
             } while (++numberOfSheets <= this.sheetIndex);
-        }else{
+        } else {
             sheet = workbook.getSheetAt(this.sheetIndex);
         }
-        if( null != sheetName ){
-            workbook.setSheetName(0 , sheetName);
+        if (null != sheetName) {
+            workbook.setSheetName(0, sheetName);
         }
 
         int rowIndex = 0;
         int columnSize;
-        if( null == fieldNames ){
-            fieldNames = getFieldNamsByRecords(records);
+        if (null == fieldNames) {
+            fieldNames = getFieldNamsByRecords(recordMaps);
         }
 
-        if( null == columnTitles ){
+        if (null == columnTitles) {
             columnTitles = fieldNames;
-        }else if( columnTitles.length < fieldNames.length ){
+        } else if (columnTitles.length < fieldNames.length) {
             String[] _columnTitles = new String[fieldNames.length];
-            System.arraycopy( columnTitles , 0 , _columnTitles , 0 , columnTitles.length );
-            System.arraycopy( fieldNames , columnTitles.length , _columnTitles , columnTitles.length , fieldNames.length - columnTitles.length );
+            System.arraycopy(columnTitles, 0, _columnTitles, 0, columnTitles.length);
+            System.arraycopy(fieldNames, columnTitles.length, _columnTitles, columnTitles.length,
+                    fieldNames.length - columnTitles.length);
             this.columnTitles = _columnTitles;
         }
 
         columnSize = columnTitles.length;
-        if( null != mainTitle ){
+        if (null != mainTitle) {
             Row mainTitleRow = sheet.createRow(rowIndex++);
-            if( null != mainTitleRowHeight ){
-                mainTitleRow.setHeight( mainTitleRowHeight );
+            if (null != mainTitleRowHeight) {
+                mainTitleRow.setHeight(mainTitleRowHeight);
             }
-            Cell mainTitleCell = mainTitleRow.createCell( 0 );
-            mainTitleCell.setCellType(Cell.CELL_TYPE_STRING);
+            Cell mainTitleCell = mainTitleRow.createCell(0);
+            mainTitleCell.setCellType(CellType.STRING);
             mainTitleCell.setCellValue(mainTitle);
-            if( null != mainTitleCellStyle ){
+            if (null != mainTitleCellStyle) {
                 mainTitleCell.setCellStyle(mainTitleCellStyle);
             }
-            sheet.addMergedRegion( new CellRangeAddress(0,0,0,columnSize-1));
+            sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, columnSize - 1));
         }
         Row titleRow = sheet.createRow(rowIndex++);
-        if( null != titleRowHeight ){
+        if (null != titleRowHeight) {
             titleRow.setHeight(titleRowHeight);
         }
-        for( int columnI = 0; columnI < columnSize ; columnI++ ){
+        for (int columnI = 0; columnI < columnSize; columnI++) {
             Cell titleCell = titleRow.createCell(columnI);
-            titleCell.setCellType(Cell.CELL_TYPE_STRING);
-            titleCell.setCellValue( columnTitles[columnI] );
-            if( null != columnTitleCellStyle ){
+            titleCell.setCellType(CellType.STRING);
+            titleCell.setCellValue(columnTitles[columnI]);
+            if (null != columnTitleCellStyle) {
                 titleCell.setCellStyle(columnTitleCellStyle);
             }
         }
 
-        fillSheet(sheet , rowIndex );
+        fillSheet(sheet, rowIndex);
 
         return workbook;
     }
 
     /**
      * 获取结果集中的所有字段名
-     * @param records
-     * @return
      */
-    public final String[] getFieldNamsByRecords( List<Map<String,Object>> records ){
-        Map<String,Object> record0 = records.get(0);
+    public final String[] getFieldNamsByRecords(List<Map<String, Object>> records) {
+        Map<String, Object> record0 = records.get(0);
         Set<String> fieldNameSet = record0.keySet();
-        this.fieldNames = new String[fieldNameSet.size() ];
+        this.fieldNames = new String[fieldNameSet.size()];
         int i = 0;
-        for(Iterator<String> it = fieldNameSet.iterator() ; it.hasNext() ;){
+        for (Iterator<String> it = fieldNameSet.iterator(); it.hasNext(); ) {
             fieldNames[i++] = it.next();
         }
         return this.fieldNames;
     }
 
-    private void initStyle( ){
-        this.mainTitleRowHeight = ( null == this.mainTitleRowHeight ? this.defaultMainTitleRowHeight : this.mainTitleRowHeight );
-        this.titleRowHeight = ( null == this.titleRowHeight ? this.defaultTitleRowHeight : this.titleRowHeight );
-        this.dataRowHeight = ( null == this.dataRowHeight ? this.defaultDataRowHeight : this.dataRowHeight );
-        this.columnweight = ( null == this.columnweight ? this.defauletColumnWeight : this.columnweight );
-        if( null == mainTitleCellStyle ){
+    private void initStyle() {
+        this.mainTitleRowHeight = (null == this.mainTitleRowHeight ? this.defaultMainTitleRowHeight
+                : this.mainTitleRowHeight);
+        this.titleRowHeight = (null == this.titleRowHeight ? this.defaultTitleRowHeight
+                : this.titleRowHeight);
+        this.dataRowHeight = (null == this.dataRowHeight ? this.defaultDataRowHeight
+                : this.dataRowHeight);
+        this.columnweight = (null == this.columnweight ? this.defauletColumnWeight
+                : this.columnweight);
+        if (null == mainTitleCellStyle) {
             mainTitleCellStyle = workbook.createCellStyle();
-            mainTitleCellStyle.setAlignment(CellStyle.ALIGN_CENTER);
-            mainTitleCellStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+            mainTitleCellStyle.setAlignment(HorizontalAlignment.CENTER);
+            mainTitleCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
             Font mainTitleFont = workbook.createFont();
-            mainTitleFont.setFontHeight( defaultMaintitleFontHeight );
+            mainTitleFont.setFontHeight(defaultMaintitleFontHeight);
             mainTitleCellStyle.setFont(mainTitleFont);
         }
-        if( null == columnTitleCellStyle ){
+        if (null == columnTitleCellStyle) {
             columnTitleCellStyle = workbook.createCellStyle();
-            columnTitleCellStyle.setAlignment(CellStyle.ALIGN_CENTER);
-            columnTitleCellStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+            columnTitleCellStyle.setAlignment(HorizontalAlignment.CENTER);
+            columnTitleCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
             Font titleFont = workbook.createFont();
-            titleFont.setFontHeight(defaultTitleFontHeight );
+            titleFont.setFontHeight(defaultTitleFontHeight);
             columnTitleCellStyle.setFont(titleFont);
         }
-        if( null == dataCellStyle ){
+        if (null == dataCellStyle) {
             dataCellStyle = workbook.createCellStyle();
-            dataCellStyle.setAlignment(CellStyle.ALIGN_LEFT);
-            dataCellStyle.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+            dataCellStyle.setAlignment(HorizontalAlignment.LEFT);
+            dataCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
             Font dataFont = workbook.createFont();
-            dataFont.setFontHeight( defaultDataFontHeight );
+            dataFont.setFontHeight(defaultDataFontHeight);
             dataCellStyle.setFont(dataFont);
         }
     }
@@ -265,12 +312,12 @@ public class WorkbookWriter {
         this.fieldNames = fieldNames;
     }
 
-    public List<Map<String, Object>> getRecords() {
-        return records;
+    public List<Map<String, Object>> getRecordMaps() {
+        return recordMaps;
     }
 
-    public void setRecords(List<Map<String, Object>> records) {
-        this.records = records;
+    public void setRecordMaps(List<Map<String, Object>> recordMaps) {
+        this.recordMaps = recordMaps;
     }
 
     public CellStyle getMainTitleCellStyle() {
